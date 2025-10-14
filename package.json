@@ -1,0 +1,64 @@
+{
+  "name": "popper",
+  "version": "0.1.0",
+  "description": "Starter project for an npm package bundled with Rollup.",
+  "license": "MIT",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "npm run clean && rollup -c",
+    "dev": "rollup -c -w",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" \"test/**/*.{js,jsx,ts,tsx}\""
+  },
+  "keywords": [],
+  "author": "",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@floating-ui/react": "^0.27.16",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@testing-library/react": "^14.1.2",
+    "@types/react": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^7.17.0",
+    "@typescript-eslint/parser": "^7.17.0",
+    "eslint": "^9.8.0",
+    "eslint-plugin-react": "^7.34.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "happy-dom": "^20.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.52.4",
+    "tslib": "^2.8.1",
+    "typescript": "^5.5.4",
+    "vitest": "^1.2.2"
+  },
+  "peerDependencies": {
+    "@floating-ui/react": "^0.27.16",
+    "@types/react": ">=17 <20",
+    "react": ">=17 <20",
+    "react-dom": ">=17 <20"
+  },
+  "peerDependenciesMeta": {
+    "@types/react": {
+      "optional": true
+    }
+  }
+}
