@@ -83,12 +83,14 @@ export interface BasePopperProps
   /** time to fade in/out in milliseconds */
   transitionMs?: number;
 
-  // reactions: 
+  // reactions:
 
   /** Called when the popper surface is clicked */
   onPopperClick?: (event: MouseEvent<Element>) => void;
   /** Called when the user interacts outside of the popper */
   onClickOutside?: (event: Event | undefined) => void;
+  /** called when closing when clicking on the reference element (on hover) */
+  onReferenceEsc?: (event: Event | undefined) => void;
 
   /** Overrides for the transition animation returned by `useTransitionStyles` */
   transitionStyles?: UseTransitionStylesProps;
@@ -125,6 +127,7 @@ export function BasePopper(props: BasePopperProps) {
     referenceEsc = false,
     onPopperClick,
     onClickOutside,
+    onReferenceEsc,
 
     ...rest
   } = props;
@@ -142,9 +145,10 @@ export function BasePopper(props: BasePopperProps) {
   const handleOpenChange = React.useCallback(
     (open: boolean, event?: Event, reason?: OpenChangeReason) => {
       if (reason === "outside-press") onClickOutside?.(event);
+      if (reason === "reference-press") onReferenceEsc?.(event);
       setOpen?.(open);
     },
-    [onClickOutside, setOpen]
+    [onClickOutside, onReferenceEsc, setOpen]
   );
 
   const { refs, floatingStyles, context } = useFloating({
@@ -178,7 +182,7 @@ export function BasePopper(props: BasePopperProps) {
   const dismissAction = useDismiss(context, {
     outsidePress: !disable && !triggerOnHover && triggerOnClickAway,
     escapeKey: !disable && !triggerOnHover && triggerOnEsc,
-    referencePress: !disable && referenceEsc,
+    referencePress: !disable && referenceEsc && open === true,
   });
 
   const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {

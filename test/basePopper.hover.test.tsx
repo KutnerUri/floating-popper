@@ -1,14 +1,14 @@
 /// <reference types="@testing-library/jest-dom/vitest" />
 
-import { act } from "react";
-import { afterEach, describe, it, expect, vi } from "vitest";
 import {
+  act,
+  cleanup,
   fireEvent,
   render,
-  cleanup,
   waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { BasePopper } from "../src/basePopper.tsx";
 
 function renderHoverPopper(props = {}) {
@@ -106,29 +106,70 @@ describe("BasePopper hover triggers", () => {
     expect(onOpen).toHaveBeenLastCalledWith(false);
   });
 
-  it.only(
-    'keeps the popper open when moving to the popper if "enterable" is true',
-    async () => {
-      vi.useFakeTimers();
-      const onOpen = vi.fn();
-      const { getByText } = renderHoverPopper({ enterable: true, onOpen });
-      const anchor = getByText("Hover me");
+  it('keeps the popper open when moving to the popper if "enterable" is true', async () => {
+    vi.useFakeTimers();
+    const onOpen = vi.fn();
+    const { getByText } = renderHoverPopper({ enterable: true, onOpen });
+    const anchor = getByText("Hover me");
 
-      fireEvent.mouseEnter(anchor);
-      fireEvent.mouseMove(anchor);
+    fireEvent.mouseEnter(anchor);
+    fireEvent.mouseMove(anchor);
 
-      await act(() => vi.advanceTimersByTimeAsync(10));
-      let popper = getByText("Popover content"); // sanity - did open
+    await act(() => vi.advanceTimersByTimeAsync(10));
+    let popper = getByText("Popover content"); // sanity - did open
 
-      if (anchor.parentElement) fireEvent.mouseLeave(anchor.parentElement);
-      fireEvent.mouseMove(popper);
-      fireEvent.mouseEnter(popper);
+    if (anchor.parentElement) fireEvent.mouseLeave(anchor.parentElement);
+    fireEvent.mouseMove(popper);
+    fireEvent.mouseEnter(popper);
 
-      await act(() => vi.advanceTimersByTimeAsync(10));
+    await act(() => vi.advanceTimersByTimeAsync(10));
 
-      // verify is still open
-      expect(popper).toBeInTheDocument();
-    },
-    { timeout: 10000 }
-  );
+    // verify is still open
+    expect(popper).toBeInTheDocument();
+  });
+});
+
+describe("BasePopper referenceEsc trigger", () => {
+  it("closes when the reference is clicked and referenceEsc is enabled", async () => {
+    const onOpen = vi.fn();
+    const onReferenceEsc = vi.fn();
+    const { getByText } = renderHoverPopper({
+      triggerOnHover: true,
+      referenceEsc: true,
+      onOpen,
+      onReferenceEsc,
+    });
+    const anchor = getByText("Hover me");
+    const root = anchor.parentElement;
+    expect(root).not.toBeNull();
+    fireEvent.mouseEnter(anchor.parentElement!);
+
+    await waitFor(() => getByText("Popover content"));
+
+    fireEvent.pointerDown(anchor);
+
+    await waitForElementToBeRemoved(() => getByText("Popover content"));
+    expect(onOpen).toBeCalledTimes(2);
+    expect(onOpen).toHaveBeenLastCalledWith(false);
+  });
+
+  it("remains open when referenceEsc is disabled", async () => {
+    const onOpen = vi.fn();
+    const { getByText } = renderHoverPopper({
+      triggerOnHover: true,
+      referenceEsc: false,
+      onOpen,
+    });
+    const anchor = getByText("Hover me");
+    const root = anchor.parentElement;
+    expect(root).not.toBeNull();
+    fireEvent.mouseEnter(anchor.parentElement!);
+    const popper = await waitFor(() => getByText("Popover content"));
+
+    fireEvent.pointerDown(anchor);
+
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    expect(onOpen).toHaveBeenLastCalledWith(true);
+    expect(popper).toBeInTheDocument();
+  });
 });
