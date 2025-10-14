@@ -57,6 +57,8 @@ export interface BasePopperProps
   popProps?: React.HTMLAttributes<HTMLDivElement>;
   /** Props applied to the floating container element */
   popContainerProps?: React.HTMLAttributes<HTMLDivElement>;
+  /** convenience className applied to the popper element */
+  popClass?: string;
   /** Slot overrides for internal components */
   slots?: {
     Pop?: React.ElementType<PopProps>;
@@ -102,6 +104,7 @@ export function BasePopper(props: BasePopperProps) {
     pop,
     popProps,
     popContainerProps,
+    popClass,
     open: propsOpen,
     onOpen,
     disable,
@@ -214,6 +217,7 @@ export function BasePopper(props: BasePopperProps) {
     >
       <Pop
         {...popProps}
+        className={[popProps?.className, popClass].filter(Boolean).join(" ")}
         onClick={handlePopperClick}
         style={{
           ...transitionStyles,
