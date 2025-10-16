@@ -4590,7 +4590,7 @@
 
   /** Generic and Agnostic Popper */
   function BasePopper(props) {
-      const { pop, popProps, popContainerProps, popClass, open: propsOpen, onOpen, disable, slots: { Pop = "div", Arrow = FloatingArrow, } = {}, offset: offset$1 = 6, viewportPadding = 4, placement, autoPlacement = "flip", autoUpdate: propsAutoUpdate = false, usePortal, transitionMs = 210, transitionStyles: transitionProps, triggerOnHover = false, enterable = true, hoverDelay = 300, triggerOnClick = !triggerOnHover, triggerOnClickAway = !triggerOnHover, triggerOnPopper = false, triggerOnEsc = !triggerOnHover, referenceEsc = false, onPopperClick, onClickOutside, onReferenceEsc, withArrow, arrowPadding, ...rest } = props;
+      const { pop, popProps, popContainerProps, popClass, open: propsOpen, onOpen, disable, slots: { Pop = "div", Arrow = FloatingArrow, } = {}, offset: offset$1 = 6, viewportPadding = 4, placement, autoPlacement = "flip", autoUpdate: propsAutoUpdate = false, usePortal, transitionMs = 210, transitionStyles: transitionProps, triggerOnHover = false, enterable = true, hoverDelay = 300, triggerOnClick = !triggerOnHover, triggerOnClickAway = !triggerOnHover, triggerOnPopper = false, triggerOnEsc = !triggerOnHover, referenceEsc = false, onPopperClick, onClickOutside, onReferenceEsc, withArrow, arrowPadding, arrowClass, arrowProps, ...rest } = props;
       // prevent popper from reopening when closing on reference click
       // could pass from props if needed
       const triggerOnHoverMove = !referenceEsc;
@@ -4620,8 +4620,8 @@
               autoPlacement === "flip" && flip(),
               // shift pushes the popper away from the edge of the screen (along secondary axis)
               autoPlacement === "flip" && shift({ padding: viewportPadding }),
-              // arrow points from the popper to the reference (only if slot provided)
-              arrow({ element: arrowRef, padding: arrowPadding }),
+              // arrow points from the popper to the reference (only when enabled)
+              withArrow && arrow({ element: arrowRef, padding: arrowPadding }),
           ],
       });
       const role = useRole(context, {
@@ -4666,7 +4666,7 @@
                   ...popProps === null || popProps === void 0 ? void 0 : popProps.style,
               } },
               pop,
-              withArrow && React$1.createElement(Arrow, { context: context, ref: arrowRef }))));
+              withArrow && (React$1.createElement(Arrow, { tipRadius: 1, ...arrowProps, context: context, ref: arrowRef, className: arrowClass })))));
       if (usePortal)
           actualPop = (React$1.createElement(FloatingPortal, { id: typeof usePortal === "string" ? usePortal : undefined }, actualPop));
       return (React$1.createElement(React$1.Fragment, null,
@@ -4681,7 +4681,7 @@
       className: "demo-pop-container",
   };
   function Example() {
-      const [triggerOnHover, setTriggerOnHover] = React$1.useState(true);
+      const [triggerOnHover, setTriggerOnHover] = React$1.useState(undefined);
       const [enterable, setEnterable] = React$1.useState(true);
       const [hoverDelay, setHoverDelay] = React$1.useState(300);
       const [triggerOnClick, setTriggerOnClick] = React$1.useState(undefined);
@@ -4698,6 +4698,7 @@
       const [usePortal, setUsePortal] = React$1.useState(false);
       const [transitionMs, setTransitionMs] = React$1.useState(210);
       const [arrowPadding, setArrowPadding] = React$1.useState(6);
+      const [showArrow, setShowArrow] = React$1.useState(true);
       // keep click defaults aligned when toggling hover
       React$1.useEffect(() => {
           if (triggerOnHover) {
@@ -4710,15 +4711,23 @@
           React$1.createElement("h1", null, "floating-tooltip-react demo"),
           React$1.createElement("p", { className: "lead" }, "Toggle options to see how behavior changes."),
           React$1.createElement("div", { className: "refs" },
-              React$1.createElement(BasePopper
-              // open
-              , { 
-                  // open
-                  triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, arrowPadding: arrowPadding, withArrow: true, disable: disable, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps, slots: slots },
+              React$1.createElement(BasePopper, { disable: disable, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, 
+                  // triggers:
+                  triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, 
+                  // other options:
+                  usePortal: usePortal, transitionMs: transitionMs, 
+                  // slots:
+                  slots: slots, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowClass: "demo-arrow", arrowPadding: arrowPadding },
                   React$1.createElement("button", { type: "button", className: "demo-btn" }, "Reference")),
               React$1.createElement("div", { className: "moving-area" },
                   React$1.createElement("div", { className: "moving" },
-                      React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, arrowPadding: arrowPadding, disable: disable, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", slots: slots, popContainerProps: popContainerProps },
+                      React$1.createElement(BasePopper, { disable: disable, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, 
+                          // triggers:
+                          triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, 
+                          // other options:
+                          usePortal: usePortal, transitionMs: transitionMs, 
+                          // slots:
+                          slots: slots, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowClass: "demo-arrow", arrowPadding: arrowPadding },
                           React$1.createElement("button", { type: "button", className: "demo-btn" }, "Moving reference"))))),
           React$1.createElement("div", { className: "section" },
               React$1.createElement("div", { className: "controls" },
@@ -4784,9 +4793,13 @@
                   React$1.createElement("label", { className: "control-row" },
                       React$1.createElement("span", null, "transitionMs"),
                       React$1.createElement("input", { type: "number", step: 10, min: 0, value: transitionMs, onChange: (e) => setTransitionMs(Number(e.target.value)) })),
+                  React$1.createElement("h2", null, "Arrow"),
                   React$1.createElement("label", { className: "control-row" },
                       React$1.createElement("span", null, "arrowPadding"),
                       React$1.createElement("input", { type: "number", step: 1, min: 0, value: arrowPadding, onChange: (e) => setArrowPadding(Number(e.target.value)) })),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: showArrow, onChange: (e) => setShowArrow(e.target.checked) }),
+                      React$1.createElement("span", null, "withArrow")),
                   React$1.createElement("h2", null, "Other"),
                   React$1.createElement("label", { className: "control-row" },
                       React$1.createElement("input", { type: "checkbox", checked: disable, onChange: (e) => setDisable(e.target.checked) }),
