@@ -4388,7 +4388,7 @@
       const dismissAction = useDismiss(context, {
           outsidePress: !disable && !triggerOnHover && triggerOnClickAway,
           escapeKey: !disable && !triggerOnHover && triggerOnEsc,
-          referencePress: !disable && referenceEsc && open === true,
+          referencePress: !disable && referenceEsc && !triggerOnClick, // triggerOnClick already closes on click
       });
       const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
           duration: transitionMs,
@@ -4421,20 +4421,116 @@
           isMounted && actualPop));
   }
 
+  const popContainerProps = {
+      className: "demo-pop-container",
+  };
   function Example() {
-      return (React.createElement("div", { style: { padding: 40 } },
-          React.createElement("h1", null, "floating-tooltip-react demo"),
-          React.createElement("p", null, "Hover or click the button to see the popper."),
-          React.createElement("div", { style: { marginTop: 24, display: "flex" } },
-              React.createElement(BasePopper, { triggerOnHover: true, pop: React.createElement("div", { style: { padding: 8 } }, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", placement: "right" },
-                  React.createElement("button", { type: "button", className: "demo-btn" }, "Hover me"))),
-          React.createElement("div", { style: { marginTop: 24, display: "flex" } },
-              React.createElement(BasePopper, { pop: React.createElement("div", { style: { padding: 8 } }, "Click popper content"), popClass: "demo-pop" },
-                  React.createElement("button", { type: "button", className: "demo-btn" }, "Click me")))));
+      const [triggerOnHover, setTriggerOnHover] = React$1.useState(true);
+      const [enterable, setEnterable] = React$1.useState(true);
+      const [hoverDelay, setHoverDelay] = React$1.useState(300);
+      const [triggerOnClick, setTriggerOnClick] = React$1.useState(false);
+      const [triggerOnClickAway, setTriggerOnClickAway] = React$1.useState(false);
+      const [triggerOnPopper, setTriggerOnPopper] = React$1.useState(false);
+      const [triggerOnEsc, setTriggerOnEsc] = React$1.useState(false);
+      const [referenceEsc, setReferenceEsc] = React$1.useState(false);
+      const [disable, setDisable] = React$1.useState(false);
+      const [placement, setPlacement] = React$1.useState("right");
+      const [offset, setOffset] = React$1.useState(6);
+      const [viewportPadding, setViewportPadding] = React$1.useState(4);
+      const [autoPlacement, setAutoPlacement] = React$1.useState("flip");
+      const [autoUpdate, setAutoUpdate] = React$1.useState(false);
+      const [usePortal, setUsePortal] = React$1.useState(false);
+      const [transitionMs, setTransitionMs] = React$1.useState(210);
+      // keep click defaults aligned when toggling hover
+      React$1.useEffect(() => {
+          if (triggerOnHover) {
+              setTriggerOnClick(false);
+              setTriggerOnClickAway(false);
+              setTriggerOnEsc(false);
+          }
+      }, [triggerOnHover]);
+      return (React$1.createElement("div", { className: "container" },
+          React$1.createElement("h1", null, "floating-tooltip-react demo"),
+          React$1.createElement("p", { className: "lead" }, "Toggle options to see how behavior changes."),
+          React$1.createElement("div", { className: "refs" },
+              React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, disable: disable, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps },
+                  React$1.createElement("button", { type: "button", className: "demo-btn" }, "Reference")),
+              React$1.createElement("div", { className: "moving-area" },
+                  React$1.createElement("div", { className: "moving" },
+                      React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, disable: disable, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", popContainerProps: popContainerProps },
+                          React$1.createElement("button", { type: "button", className: "demo-btn" }, "Moving reference"))))),
+          React$1.createElement("div", { className: "section" },
+              React$1.createElement("div", { className: "controls" },
+                  React$1.createElement("h2", null, "Triggers"),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: triggerOnHover, onChange: (e) => setTriggerOnHover(e.target.checked) }),
+                      React$1.createElement("span", null, "triggerOnHover")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: enterable, onChange: (e) => setEnterable(e.target.checked) }),
+                      React$1.createElement("span", null, "enterable")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "hoverDelay"),
+                      React$1.createElement("input", { type: "number", min: 0, step: 50, value: hoverDelay, onChange: (e) => setHoverDelay(Number(e.target.value)) })),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: triggerOnClick, onChange: (e) => setTriggerOnClick(e.target.checked), disabled: triggerOnHover }),
+                      React$1.createElement("span", null, "triggerOnClick")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: triggerOnClickAway, onChange: (e) => setTriggerOnClickAway(e.target.checked), disabled: triggerOnHover }),
+                      React$1.createElement("span", null, "triggerOnClickAway")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: triggerOnPopper, onChange: (e) => setTriggerOnPopper(e.target.checked) }),
+                      React$1.createElement("span", null, "triggerOnPopper")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: triggerOnEsc, onChange: (e) => setTriggerOnEsc(e.target.checked), disabled: triggerOnHover }),
+                      React$1.createElement("span", null, "triggerOnEsc")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: referenceEsc, onChange: (e) => setReferenceEsc(e.target.checked) }),
+                      React$1.createElement("span", null, "referenceEsc")),
+                  React$1.createElement("h2", null, "Positioning"),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "placement"),
+                      React$1.createElement("select", { value: placement, onChange: (e) => setPlacement(e.target.value) }, [
+                          "top",
+                          "top-start",
+                          "top-end",
+                          "bottom",
+                          "bottom-start",
+                          "bottom-end",
+                          "left",
+                          "left-start",
+                          "left-end",
+                          "right",
+                          "right-start",
+                          "right-end",
+                      ].map((p) => (React$1.createElement("option", { key: p, value: p }, p))))),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "offset"),
+                      React$1.createElement("input", { type: "number", step: 1, value: offset, onChange: (e) => setOffset(Number(e.target.value)) })),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "viewportPadding"),
+                      React$1.createElement("input", { type: "number", step: 1, value: viewportPadding, onChange: (e) => setViewportPadding(Number(e.target.value)) })),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "autoPlacement"),
+                      React$1.createElement("select", { value: autoPlacement ? "flip" : "false", onChange: (e) => setAutoPlacement(e.target.value === "flip" ? "flip" : false) },
+                          React$1.createElement("option", { value: "flip" }, "flip"),
+                          React$1.createElement("option", { value: "false" }, "false"))),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: autoUpdate, onChange: (e) => setAutoUpdate(e.target.checked) }),
+                      React$1.createElement("span", null, "autoUpdate")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: usePortal, onChange: (e) => setUsePortal(e.target.checked) }),
+                      React$1.createElement("span", null, "usePortal")),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "transitionMs"),
+                      React$1.createElement("input", { type: "number", step: 10, min: 0, value: transitionMs, onChange: (e) => setTransitionMs(Number(e.target.value)) })),
+                  React$1.createElement("h2", null, "Other"),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("input", { type: "checkbox", checked: disable, onChange: (e) => setDisable(e.target.checked) }),
+                      React$1.createElement("span", null, "disable"))))));
   }
 
   const root = client.createRoot(document.getElementById("root"));
   root.render(React.createElement(Example, null));
 
-})(ReactDOM, React, React, ReactDOM);
+})(ReactDOM, React, jsxRuntime, ReactDOM);
 //# sourceMappingURL=demo.js.map
