@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "es6",
+    "moduleResolution": "classic",
+    "rootDir": ".",
+    "declaration": false,
+    "declarationDir": null,
+    "noEmit": false,
+    "jsx": "react"
+  },
+  "include": ["demo/**/*", "src/**/*"],
+  "exclude": ["dist", "node_modules"]
+}

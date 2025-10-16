@@ -38,7 +38,7 @@ function App() {
 
 ## DOM structure
 
-For ref handling, the popper renders its own div. Beyond that, it’s as minimal as possible.
+For ref handling, the popper renders its own div. Beyond that, it's as minimal as possible.
 
 ```tsx
 <BasePopper

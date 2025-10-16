@@ -6,7 +6,6 @@ import pkg from "./package.json" assert { type: "json" };
 
 const external = [
   ...Object.keys(pkg.dependencies ?? {}),
-  ...Object.keys(pkg.devDependencies ?? {}),
   ...Object.keys(pkg.peerDependencies ?? {}),
 ];
 
@@ -17,8 +16,8 @@ export default defineConfig({
     {
       file: "dist/index.cjs",
       format: "cjs",
-      exports: "named",
-      sourcemap: true
+      exports: "auto",
+      sourcemap: true,
     },
     {
       file: "dist/index.mjs",
@@ -27,12 +26,8 @@ export default defineConfig({
     },
   ],
   plugins: [
-    nodeResolve({
-      extensions: [".js", ".jsx", ".ts", ".tsx"],
-    }),
+    nodeResolve({ extensions: [".js", ".jsx", ".ts", ".tsx"] }),
     commonjs(),
-    typescript({
-      tsconfig: "./tsconfig.json",
-    }),
+    typescript({ tsconfig: "./tsconfig.json" }),
   ],
 });

@@ -185,7 +185,7 @@ export function BasePopper(props: BasePopperProps) {
   const dismissAction = useDismiss(context, {
     outsidePress: !disable && !triggerOnHover && triggerOnClickAway,
     escapeKey: !disable && !triggerOnHover && triggerOnEsc,
-    referencePress: !disable && referenceEsc && open === true,
+    referencePress: !disable && referenceEsc && !triggerOnClick, // triggerOnClick already closes on click
   });
 
   const { isMounted, styles: transitionStyles } = useTransitionStyles(context, {
