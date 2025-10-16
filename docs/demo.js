@@ -1250,6 +1250,88 @@
   }
 
   /**
+   * Provides data to position an inner element of the floating element so that it
+   * appears centered to the reference element.
+   * @see https://floating-ui.com/docs/arrow
+   */
+  const arrow$3 = options => ({
+    name: 'arrow',
+    options,
+    async fn(state) {
+      const {
+        x,
+        y,
+        placement,
+        rects,
+        platform,
+        elements,
+        middlewareData
+      } = state;
+      // Since `element` is required, we don't Partial<> the type.
+      const {
+        element,
+        padding = 0
+      } = evaluate(options, state) || {};
+      if (element == null) {
+        return {};
+      }
+      const paddingObject = getPaddingObject(padding);
+      const coords = {
+        x,
+        y
+      };
+      const axis = getAlignmentAxis(placement);
+      const length = getAxisLength(axis);
+      const arrowDimensions = await platform.getDimensions(element);
+      const isYAxis = axis === 'y';
+      const minProp = isYAxis ? 'top' : 'left';
+      const maxProp = isYAxis ? 'bottom' : 'right';
+      const clientProp = isYAxis ? 'clientHeight' : 'clientWidth';
+      const endDiff = rects.reference[length] + rects.reference[axis] - coords[axis] - rects.floating[length];
+      const startDiff = coords[axis] - rects.reference[axis];
+      const arrowOffsetParent = await (platform.getOffsetParent == null ? void 0 : platform.getOffsetParent(element));
+      let clientSize = arrowOffsetParent ? arrowOffsetParent[clientProp] : 0;
+
+      // DOM platform can return `window` as the `offsetParent`.
+      if (!clientSize || !(await (platform.isElement == null ? void 0 : platform.isElement(arrowOffsetParent)))) {
+        clientSize = elements.floating[clientProp] || rects.floating[length];
+      }
+      const centerToReference = endDiff / 2 - startDiff / 2;
+
+      // If the padding is large enough that it causes the arrow to no longer be
+      // centered, modify the padding so that it is centered.
+      const largestPossiblePadding = clientSize / 2 - arrowDimensions[length] / 2 - 1;
+      const minPadding = min(paddingObject[minProp], largestPossiblePadding);
+      const maxPadding = min(paddingObject[maxProp], largestPossiblePadding);
+
+      // Make sure the arrow doesn't overflow the floating element if the center
+      // point is outside the floating element's bounds.
+      const min$1 = minPadding;
+      const max = clientSize - arrowDimensions[length] - maxPadding;
+      const center = clientSize / 2 - arrowDimensions[length] / 2 + centerToReference;
+      const offset = clamp(min$1, center, max);
+
+      // If the reference is small enough that the arrow's padding causes it to
+      // to point to nothing for an aligned placement, adjust the offset of the
+      // floating element itself. To ensure `shift()` continues to take action,
+      // a single reset is performed when this is true.
+      const shouldAddOffset = !middlewareData.arrow && getAlignment(placement) != null && center !== offset && rects.reference[length] / 2 - (center < min$1 ? minPadding : maxPadding) - arrowDimensions[length] / 2 < 0;
+      const alignmentOffset = shouldAddOffset ? center < min$1 ? center - min$1 : center - max : 0;
+      return {
+        [axis]: coords[axis] + alignmentOffset,
+        data: {
+          [axis]: offset,
+          centerOffset: center - offset - alignmentOffset,
+          ...(shouldAddOffset && {
+            alignmentOffset
+          })
+        },
+        reset: shouldAddOffset
+      };
+    }
+  });
+
+  /**
    * Optimizes the visibility of the floating element by flipping the `placement`
    * in order to keep it in view when the preferred placement(s) will overflow the
    * clipping boundary. Alternative to `autoPlacement`.
@@ -2242,6 +2324,13 @@
   const flip$1 = flip$2;
 
   /**
+   * Provides data to position an inner element of the floating element so that it
+   * appears centered to the reference element.
+   * @see https://floating-ui.com/docs/arrow
+   */
+  const arrow$2 = arrow$3;
+
+  /**
    * Computes the `x` and `y` coordinates that will place the floating element
    * next to a given reference element.
    */
@@ -2497,6 +2586,44 @@
   }
 
   /**
+   * Provides data to position an inner element of the floating element so that it
+   * appears centered to the reference element.
+   * This wraps the core `arrow` middleware to allow React refs as the element.
+   * @see https://floating-ui.com/docs/arrow
+   */
+  const arrow$1 = options => {
+    function isRef(value) {
+      return {}.hasOwnProperty.call(value, 'current');
+    }
+    return {
+      name: 'arrow',
+      options,
+      fn(state) {
+        const {
+          element,
+          padding
+        } = typeof options === 'function' ? options(state) : options;
+        if (element && isRef(element)) {
+          if (element.current != null) {
+            return arrow$2({
+              element: element.current,
+              padding
+            }).fn(state);
+          }
+          return {};
+        }
+        if (element) {
+          return arrow$2({
+            element,
+            padding
+          }).fn(state);
+        }
+        return {};
+      }
+    };
+  };
+
+  /**
    * Modifies the placement by translating the floating element along the
    * specified axes.
    * A number (shorthand for `mainAxis` or distance), or an axes configuration
@@ -2526,6 +2653,17 @@
    */
   const flip = (options, deps) => ({
     ...flip$1(options),
+    options: [options, deps]
+  });
+
+  /**
+   * Provides data to position an inner element of the floating element so that it
+   * appears centered to the reference element.
+   * This wraps the core `arrow` middleware to allow React refs as the element.
+   * @see https://floating-ui.com/docs/arrow
+   */
+  const arrow = (options, deps) => ({
+    ...arrow$1(options),
     options: [options, deps]
   });
 
@@ -2565,6 +2703,116 @@
    * @see https://floating-ui.com/docs/react-utils#useid
    */
   const useId = useReactId || useFloatingId;
+
+  /**
+   * Renders a pointing arrow triangle.
+   * @see https://floating-ui.com/docs/FloatingArrow
+   */
+  const FloatingArrow = /*#__PURE__*/React__namespace.forwardRef(function FloatingArrow(props, ref) {
+    const {
+      context: {
+        placement,
+        elements: {
+          floating
+        },
+        middlewareData: {
+          arrow,
+          shift
+        }
+      },
+      width = 14,
+      height = 7,
+      tipRadius = 0,
+      strokeWidth = 0,
+      staticOffset,
+      stroke,
+      d,
+      style: {
+        transform,
+        ...restStyle
+      } = {},
+      ...rest
+    } = props;
+    const clipPathId = useId();
+    const [isRTL, setIsRTL] = React__namespace.useState(false);
+
+    // https://github.com/floating-ui/floating-ui/issues/2932
+    index$1(() => {
+      if (!floating) return;
+      const isRTL = getComputedStyle$1(floating).direction === 'rtl';
+      if (isRTL) {
+        setIsRTL(true);
+      }
+    }, [floating]);
+    if (!floating) {
+      return null;
+    }
+    const [side, alignment] = placement.split('-');
+    const isVerticalSide = side === 'top' || side === 'bottom';
+    let computedStaticOffset = staticOffset;
+    if (isVerticalSide && shift != null && shift.x || !isVerticalSide && shift != null && shift.y) {
+      computedStaticOffset = null;
+    }
+
+    // Strokes must be double the border width, this ensures the stroke's width
+    // works as you'd expect.
+    const computedStrokeWidth = strokeWidth * 2;
+    const halfStrokeWidth = computedStrokeWidth / 2;
+    const svgX = width / 2 * (tipRadius / -8 + 1);
+    const svgY = height / 2 * tipRadius / 4;
+    const isCustomShape = !!d;
+    const yOffsetProp = computedStaticOffset && alignment === 'end' ? 'bottom' : 'top';
+    let xOffsetProp = computedStaticOffset && alignment === 'end' ? 'right' : 'left';
+    if (computedStaticOffset && isRTL) {
+      xOffsetProp = alignment === 'end' ? 'left' : 'right';
+    }
+    const arrowX = (arrow == null ? void 0 : arrow.x) != null ? computedStaticOffset || arrow.x : '';
+    const arrowY = (arrow == null ? void 0 : arrow.y) != null ? computedStaticOffset || arrow.y : '';
+    const dValue = d || 'M0,0' + (" H" + width) + (" L" + (width - svgX) + "," + (height - svgY)) + (" Q" + width / 2 + "," + height + " " + svgX + "," + (height - svgY)) + ' Z';
+    const rotation = {
+      top: isCustomShape ? 'rotate(180deg)' : '',
+      left: isCustomShape ? 'rotate(90deg)' : 'rotate(-90deg)',
+      bottom: isCustomShape ? '' : 'rotate(180deg)',
+      right: isCustomShape ? 'rotate(-90deg)' : 'rotate(90deg)'
+    }[side];
+    return /*#__PURE__*/jsxRuntime.jsxs("svg", {
+      ...rest,
+      "aria-hidden": true,
+      ref: ref,
+      width: isCustomShape ? width : width + computedStrokeWidth,
+      height: width,
+      viewBox: "0 0 " + width + " " + (height > width ? height : width),
+      style: {
+        position: 'absolute',
+        pointerEvents: 'none',
+        [xOffsetProp]: arrowX,
+        [yOffsetProp]: arrowY,
+        [side]: isVerticalSide || isCustomShape ? '100%' : "calc(100% - " + computedStrokeWidth / 2 + "px)",
+        transform: [rotation, transform].filter(t => !!t).join(' '),
+        ...restStyle
+      },
+      children: [computedStrokeWidth > 0 && /*#__PURE__*/jsxRuntime.jsx("path", {
+        clipPath: "url(#" + clipPathId + ")",
+        fill: "none",
+        stroke: stroke
+        // Account for the stroke on the fill path rendered below.
+        ,
+        strokeWidth: computedStrokeWidth + (d ? 0 : 1),
+        d: dValue
+      }), /*#__PURE__*/jsxRuntime.jsx("path", {
+        stroke: computedStrokeWidth && !d ? rest.fill : 'none',
+        d: dValue
+      }), /*#__PURE__*/jsxRuntime.jsx("clipPath", {
+        id: clipPathId,
+        children: /*#__PURE__*/jsxRuntime.jsx("rect", {
+          x: -halfStrokeWidth,
+          y: halfStrokeWidth * (isCustomShape ? -1 : 1),
+          width: width + computedStrokeWidth,
+          height: width
+        })
+      })]
+    });
+  });
 
   function createEventEmitter() {
     const map = new Map();
@@ -4342,7 +4590,7 @@
 
   /** Generic and Agnostic Popper */
   function BasePopper(props) {
-      const { pop, popProps, popContainerProps, popClass, open: propsOpen, onOpen, disable, slots: { Pop = "div" } = {}, offset: offset$1 = 6, viewportPadding = 4, placement, autoPlacement = "flip", autoUpdate: propsAutoUpdate = false, usePortal, transitionMs = 210, transitionStyles: transitionProps, triggerOnHover = false, enterable = true, hoverDelay = 300, triggerOnClick = !triggerOnHover, triggerOnClickAway = !triggerOnHover, triggerOnPopper = false, triggerOnEsc = !triggerOnHover, referenceEsc = false, onPopperClick, onClickOutside, onReferenceEsc, ...rest } = props;
+      const { pop, popProps, popContainerProps, popClass, open: propsOpen, onOpen, disable, slots: { Pop = "div", Arrow = FloatingArrow, } = {}, offset: offset$1 = 6, viewportPadding = 4, placement, autoPlacement = "flip", autoUpdate: propsAutoUpdate = false, usePortal, transitionMs = 210, transitionStyles: transitionProps, triggerOnHover = false, enterable = true, hoverDelay = 300, triggerOnClick = !triggerOnHover, triggerOnClickAway = !triggerOnHover, triggerOnPopper = false, triggerOnEsc = !triggerOnHover, referenceEsc = false, onPopperClick, onClickOutside, onReferenceEsc, withArrow, arrowPadding, ...rest } = props;
       // prevent popper from reopening when closing on reference click
       // could pass from props if needed
       const triggerOnHoverMove = !referenceEsc;
@@ -4358,6 +4606,7 @@
               onReferenceEsc === null || onReferenceEsc === void 0 ? void 0 : onReferenceEsc(event);
           setOpen === null || setOpen === void 0 ? void 0 : setOpen(open);
       }, [onClickOutside, onReferenceEsc, setOpen]);
+      const arrowRef = React$1.useRef(null);
       const { refs, floatingStyles, context } = useFloating({
           placement,
           open: open && disable !== true,
@@ -4371,6 +4620,8 @@
               autoPlacement === "flip" && flip(),
               // shift pushes the popper away from the edge of the screen (along secondary axis)
               autoPlacement === "flip" && shift({ padding: viewportPadding }),
+              // arrow points from the popper to the reference (only if slot provided)
+              arrow({ element: arrowRef, padding: arrowPadding }),
           ],
       });
       const role = useRole(context, {
@@ -4413,7 +4664,9 @@
           React$1.createElement(Pop, { ...popProps, className: [popProps === null || popProps === void 0 ? void 0 : popProps.className, popClass].filter(Boolean).join(" "), onClick: handlePopperClick, style: {
                   ...transitionStyles,
                   ...popProps === null || popProps === void 0 ? void 0 : popProps.style,
-              } }, pop)));
+              } },
+              pop,
+              withArrow && React$1.createElement(Arrow, { context: context, ref: arrowRef }))));
       if (usePortal)
           actualPop = (React$1.createElement(FloatingPortal, { id: typeof usePortal === "string" ? usePortal : undefined }, actualPop));
       return (React$1.createElement(React$1.Fragment, null,
@@ -4421,6 +4674,9 @@
           isMounted && actualPop));
   }
 
+  const slots = {
+  // Arrow: "div",
+  };
   const popContainerProps = {
       className: "demo-pop-container",
   };
@@ -4428,11 +4684,11 @@
       const [triggerOnHover, setTriggerOnHover] = React$1.useState(true);
       const [enterable, setEnterable] = React$1.useState(true);
       const [hoverDelay, setHoverDelay] = React$1.useState(300);
-      const [triggerOnClick, setTriggerOnClick] = React$1.useState(false);
-      const [triggerOnClickAway, setTriggerOnClickAway] = React$1.useState(false);
-      const [triggerOnPopper, setTriggerOnPopper] = React$1.useState(false);
-      const [triggerOnEsc, setTriggerOnEsc] = React$1.useState(false);
-      const [referenceEsc, setReferenceEsc] = React$1.useState(false);
+      const [triggerOnClick, setTriggerOnClick] = React$1.useState(undefined);
+      const [triggerOnClickAway, setTriggerOnClickAway] = React$1.useState(undefined);
+      const [triggerOnPopper, setTriggerOnPopper] = React$1.useState(undefined);
+      const [triggerOnEsc, setTriggerOnEsc] = React$1.useState(undefined);
+      const [referenceEsc, setReferenceEsc] = React$1.useState(undefined);
       const [disable, setDisable] = React$1.useState(false);
       const [placement, setPlacement] = React$1.useState("right");
       const [offset, setOffset] = React$1.useState(6);
@@ -4441,23 +4697,28 @@
       const [autoUpdate, setAutoUpdate] = React$1.useState(false);
       const [usePortal, setUsePortal] = React$1.useState(false);
       const [transitionMs, setTransitionMs] = React$1.useState(210);
+      const [arrowPadding, setArrowPadding] = React$1.useState(6);
       // keep click defaults aligned when toggling hover
       React$1.useEffect(() => {
           if (triggerOnHover) {
-              setTriggerOnClick(false);
-              setTriggerOnClickAway(false);
-              setTriggerOnEsc(false);
+              setTriggerOnClick(undefined);
+              setTriggerOnClickAway(undefined);
+              setTriggerOnEsc(undefined);
           }
       }, [triggerOnHover]);
       return (React$1.createElement("div", { className: "container" },
           React$1.createElement("h1", null, "floating-tooltip-react demo"),
           React$1.createElement("p", { className: "lead" }, "Toggle options to see how behavior changes."),
           React$1.createElement("div", { className: "refs" },
-              React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, disable: disable, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps },
+              React$1.createElement(BasePopper
+              // open
+              , { 
+                  // open
+                  triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, arrowPadding: arrowPadding, withArrow: true, disable: disable, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps, slots: slots },
                   React$1.createElement("button", { type: "button", className: "demo-btn" }, "Reference")),
               React$1.createElement("div", { className: "moving-area" },
                   React$1.createElement("div", { className: "moving" },
-                      React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, disable: disable, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", popContainerProps: popContainerProps },
+                      React$1.createElement(BasePopper, { triggerOnHover: triggerOnHover, enterable: enterable, hoverDelay: hoverDelay, triggerOnClick: triggerOnClick, triggerOnClickAway: triggerOnClickAway, triggerOnPopper: triggerOnPopper, triggerOnEsc: triggerOnEsc, referenceEsc: referenceEsc, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, usePortal: usePortal, transitionMs: transitionMs, arrowPadding: arrowPadding, disable: disable, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", slots: slots, popContainerProps: popContainerProps },
                           React$1.createElement("button", { type: "button", className: "demo-btn" }, "Moving reference"))))),
           React$1.createElement("div", { className: "section" },
               React$1.createElement("div", { className: "controls" },
@@ -4523,6 +4784,9 @@
                   React$1.createElement("label", { className: "control-row" },
                       React$1.createElement("span", null, "transitionMs"),
                       React$1.createElement("input", { type: "number", step: 10, min: 0, value: transitionMs, onChange: (e) => setTransitionMs(Number(e.target.value)) })),
+                  React$1.createElement("label", { className: "control-row" },
+                      React$1.createElement("span", null, "arrowPadding"),
+                      React$1.createElement("input", { type: "number", step: 1, min: 0, value: arrowPadding, onChange: (e) => setArrowPadding(Number(e.target.value)) })),
                   React$1.createElement("h2", null, "Other"),
                   React$1.createElement("label", { className: "control-row" },
                       React$1.createElement("input", { type: "checkbox", checked: disable, onChange: (e) => setDisable(e.target.checked) }),

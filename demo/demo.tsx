@@ -1,20 +1,27 @@
 import React from "react";
 import BasePopper, { Placement } from "../src";
 
+const slots = {
+  // Arrow: "div",
+} as const;
 const popContainerProps = {
   className: "demo-pop-container",
 } as const;
 
+type Toggle = boolean | undefined;
+
 export function Example() {
-  const [triggerOnHover, setTriggerOnHover] = React.useState(true);
+  const [triggerOnHover, setTriggerOnHover] = React.useState<Toggle>(undefined);
   const [enterable, setEnterable] = React.useState(true);
   const [hoverDelay, setHoverDelay] = React.useState(300);
 
-  const [triggerOnClick, setTriggerOnClick] = React.useState(false);
-  const [triggerOnClickAway, setTriggerOnClickAway] = React.useState(false);
-  const [triggerOnPopper, setTriggerOnPopper] = React.useState(false);
-  const [triggerOnEsc, setTriggerOnEsc] = React.useState(false);
-  const [referenceEsc, setReferenceEsc] = React.useState(false);
+  const [triggerOnClick, setTriggerOnClick] = React.useState<Toggle>(undefined);
+  const [triggerOnClickAway, setTriggerOnClickAway] =
+    React.useState<Toggle>(undefined);
+  const [triggerOnPopper, setTriggerOnPopper] =
+    React.useState<Toggle>(undefined);
+  const [triggerOnEsc, setTriggerOnEsc] = React.useState<Toggle>(undefined);
+  const [referenceEsc, setReferenceEsc] = React.useState<Toggle>(undefined);
 
   const [disable, setDisable] = React.useState(false);
 
@@ -27,13 +34,14 @@ export function Example() {
   const [autoUpdate, setAutoUpdate] = React.useState(false);
   const [usePortal, setUsePortal] = React.useState(false);
   const [transitionMs, setTransitionMs] = React.useState(210);
-
+  const [arrowPadding, setArrowPadding] = React.useState(6);
+  const [showArrow, setShowArrow] = React.useState(true);
   // keep click defaults aligned when toggling hover
   React.useEffect(() => {
     if (triggerOnHover) {
-      setTriggerOnClick(false);
-      setTriggerOnClickAway(false);
-      setTriggerOnEsc(false);
+      setTriggerOnClick(undefined);
+      setTriggerOnClickAway(undefined);
+      setTriggerOnEsc(undefined);
     }
   }, [triggerOnHover]);
 
@@ -45,6 +53,13 @@ export function Example() {
       {/* References showcase */}
       <div className="refs">
         <BasePopper
+          disable={disable}
+          placement={placement}
+          offset={offset}
+          viewportPadding={viewportPadding}
+          autoPlacement={autoPlacement}
+          autoUpdate={autoUpdate}
+          // triggers:
           triggerOnHover={triggerOnHover}
           enterable={enterable}
           hoverDelay={hoverDelay}
@@ -53,17 +68,17 @@ export function Example() {
           triggerOnPopper={triggerOnPopper}
           triggerOnEsc={triggerOnEsc}
           referenceEsc={referenceEsc}
-          placement={placement}
-          offset={offset}
-          viewportPadding={viewportPadding}
-          autoPlacement={autoPlacement}
-          autoUpdate={autoUpdate}
+          // other options:
           usePortal={usePortal}
           transitionMs={transitionMs}
-          disable={disable}
+          // slots:
+          slots={slots}
           pop={<div>Hello from Popper 👋</div>}
           popClass="demo-pop"
           popContainerProps={popContainerProps}
+          withArrow={showArrow}
+          arrowClass="demo-arrow"
+          arrowPadding={arrowPadding}
         >
           <button type="button" className="demo-btn">
             Reference
@@ -73,6 +88,13 @@ export function Example() {
         <div className="moving-area">
           <div className="moving">
             <BasePopper
+              disable={disable}
+              placement={placement}
+              offset={offset}
+              viewportPadding={viewportPadding}
+              autoPlacement={autoPlacement}
+              autoUpdate={autoUpdate}
+              // triggers:
               triggerOnHover={triggerOnHover}
               enterable={enterable}
               hoverDelay={hoverDelay}
@@ -81,17 +103,17 @@ export function Example() {
               triggerOnPopper={triggerOnPopper}
               triggerOnEsc={triggerOnEsc}
               referenceEsc={referenceEsc}
-              placement={placement}
-              offset={offset}
-              viewportPadding={viewportPadding}
-              autoPlacement={autoPlacement}
-              autoUpdate={autoUpdate}
+              // other options:
               usePortal={usePortal}
               transitionMs={transitionMs}
-              disable={disable}
+              // slots:
+              slots={slots}
               pop={<div>Moving ref demo 🏃‍♂️</div>}
               popClass="demo-pop"
               popContainerProps={popContainerProps}
+              withArrow={showArrow}
+              arrowClass="demo-arrow"
+              arrowPadding={arrowPadding}
             >
               <button type="button" className="demo-btn">
                 Moving reference
@@ -257,6 +279,25 @@ export function Example() {
               value={transitionMs}
               onChange={(e) => setTransitionMs(Number(e.target.value))}
             />
+          </label>
+          <h2>Arrow</h2>
+          <label className="control-row">
+            <span>arrowPadding</span>
+            <input
+              type="number"
+              step={1}
+              min={0}
+              value={arrowPadding}
+              onChange={(e) => setArrowPadding(Number(e.target.value))}
+            />
+          </label>
+          <label className="control-row">
+            <input
+              type="checkbox"
+              checked={showArrow}
+              onChange={(e) => setShowArrow(e.target.checked)}
+            />
+            <span>withArrow</span>
           </label>
 
           <h2>Other</h2>

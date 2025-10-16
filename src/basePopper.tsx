@@ -16,7 +16,10 @@ import {
   useRole,
   useTransitionStyles,
   UseTransitionStylesProps,
+  arrow as arrowMiddleware,
+  FloatingArrow,
 } from "@floating-ui/react";
+import type { FloatingArrowProps } from "@floating-ui/react";
 import React, { MouseEvent } from "react";
 
 import { useControlled } from "./useControlled";
@@ -48,6 +51,23 @@ export type Triggers = {
 type PopProps = React.HTMLAttributes<HTMLDivElement> &
   React.RefAttributes<HTMLDivElement> & {};
 
+type ArrowProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<Element>,
+  Element
+> &
+  Pick<
+    FloatingArrowProps,
+    | "context"
+    | "ref"
+    | "width"
+    | "height"
+    | "tipRadius"
+    | "staticOffset"
+    | "d"
+    | "stroke"
+    | "strokeWidth"
+  >;
+
 export interface BasePopperProps
   extends React.HTMLAttributes<HTMLDivElement>,
     Triggers {
@@ -61,8 +81,20 @@ export interface BasePopperProps
   popClass?: string;
   /** Slot overrides for internal components */
   slots?: {
-    Pop?: React.ElementType<PopProps>;
+    Pop?: React.ComponentType<PopProps>;
+    Arrow?: React.ComponentType<ArrowProps>;
   };
+
+  // arrow:
+
+  /** whether to show the arrow */
+  withArrow?: boolean;
+  /** padding for the arrow middleware (distance from edges/corners) */
+  arrowPadding?: number | Padding;
+  /** convenience className applied to the arrow element */
+  arrowClass?: string;
+  /** Props forwarded to the arrow element */
+  arrowProps?: Omit<ArrowProps, "ref" | "context">;
 
   // manual control:
 
@@ -108,7 +140,10 @@ export function BasePopper(props: BasePopperProps) {
     open: propsOpen,
     onOpen,
     disable,
-    slots: { Pop = "div" } = {},
+    slots: {
+      Pop = "div",
+      Arrow = FloatingArrow as React.ComponentType<ArrowProps>,
+    } = {},
 
     offset = 6,
     viewportPadding = 4,
@@ -132,6 +167,11 @@ export function BasePopper(props: BasePopperProps) {
     onClickOutside,
     onReferenceEsc,
 
+    withArrow,
+    arrowPadding,
+    arrowClass,
+    arrowProps,
+
     ...rest
   } = props;
 
@@ -154,6 +194,8 @@ export function BasePopper(props: BasePopperProps) {
     [onClickOutside, onReferenceEsc, setOpen]
   );
 
+  const arrowRef = React.useRef<SVGSVGElement | null>(null);
+
   const { refs, floatingStyles, context } = useFloating({
     placement,
     open: open && disable !== true,
@@ -167,6 +209,8 @@ export function BasePopper(props: BasePopperProps) {
       autoPlacement === "flip" && flip(),
       // shift pushes the popper away from the edge of the screen (along secondary axis)
       autoPlacement === "flip" && shift({ padding: viewportPadding }),
+      // arrow points from the popper to the reference (only when enabled)
+      withArrow && arrowMiddleware({ element: arrowRef, padding: arrowPadding }),
     ],
   });
 
@@ -225,6 +269,15 @@ export function BasePopper(props: BasePopperProps) {
         }}
       >
         {pop}
+        {withArrow && (
+          <Arrow
+          tipRadius={1}
+            {...arrowProps}
+            context={context}
+            ref={arrowRef}
+            className={arrowClass}
+          />
+        )}
       </Pop>
     </div>
   );

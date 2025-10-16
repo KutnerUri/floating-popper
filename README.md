@@ -78,6 +78,7 @@ Rendering
 | `popProps`          | `div props` | —       | Props for the pop element (e.g., `className`, `role`).                                      |
 | `popContainerProps` | `div props` | —       | Props for the positioned container. Inline styles from Floating UI are merged with `style`. |
 | `slots.Pop`         | `Component`                    | `"div"` | Override the default pop wrapper element.                                                   |
+| `slots.Arrow`       | `Component`                    | `FloatingArrow` | Override the arrow renderer. Receives `FloatingArrowProps` except `ref`.             |
 
 State & Control
 
@@ -113,6 +114,15 @@ Positioning & Transitions
 | `transitionMs` | `number` | `210` | Enter/exit duration in ms. |
 | `transitionStyles` | `UseTransitionStylesProps` | — | Override `useTransitionStyles` configuration. |
 
+Arrow
+
+| Prop | Type | Default | Description |
+| --- | --- | --- | --- |
+| `withArrow` | `boolean` | `false` | Renders a pointing arrow connected to the popper. |
+| `arrowPadding` | `number | Padding` | `undefined` | Edge padding used by Floating UI `arrow` middleware. Helps keep the arrow away from corners/edges. |
+| `arrowClass` | `string` | `undefined` | Convenience class applied to the Arrow component. |
+| `arrowProps` | `Partial<FloatingArrowProps>` | `undefined` | Additional props forwarded to the Arrow (e.g., `width`, `height`, `tipRadius`, `stroke`). |
+
 Events
 
 | Prop | Type | Description |
@@ -120,6 +130,12 @@ Events
 | `onPopperClick` | `(event: React.MouseEvent) => void` | Fired when the pop surface is clicked. |
 | `onClickOutside` | `(event: Event or undefined) => void` | Fired on outside click (if that trigger is enabled). |
 | `onReferenceEsc` | `(event: Event or undefined) => void` | Fired when closing by clicking the reference (while open). |
+
+## Usage Notes
+
+- The arrow is opt-in: set `withArrow` to true. Styling is left to you; see the demo for an example.
+- To fully customize the arrow, pass a custom `slots.Arrow` component. The default uses `@floating-ui/react`’s `FloatingArrow`.
+- If your popper uses a non-solid background or a shadow, style the arrow to visually match. The default library does not impose any CSS.
 
 ## Contributing
 
