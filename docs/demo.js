@@ -4621,7 +4621,8 @@
               // shift pushes the popper away from the edge of the screen (along secondary axis)
               autoPlacement === "flip" && shift({ padding: viewportPadding }),
               // arrow points from the popper to the reference (only when enabled)
-              withArrow && arrow({ element: arrowRef, padding: arrowPadding }),
+              withArrow &&
+                  arrow({ element: arrowRef, padding: arrowPadding }),
           ],
       });
       const role = useRole(context, {
@@ -4666,7 +4667,9 @@
                   ...popProps === null || popProps === void 0 ? void 0 : popProps.style,
               } },
               pop,
-              withArrow && (React$1.createElement(Arrow, { tipRadius: 1, ...arrowProps, context: context, ref: arrowRef, className: arrowClass })))));
+              withArrow && (React$1.createElement(Arrow, { ...arrowProps, context: context, ref: arrowRef, className: [arrowProps === null || arrowProps === void 0 ? void 0 : arrowProps.className, arrowClass]
+                      .filter(Boolean)
+                      .join(" ") })))));
       if (usePortal)
           actualPop = (React$1.createElement(FloatingPortal, { id: typeof usePortal === "string" ? usePortal : undefined }, actualPop));
       return (React$1.createElement(React$1.Fragment, null,
@@ -4680,6 +4683,12 @@
   const popContainerProps = {
       className: "demo-pop-container",
   };
+  const arrowProps = {
+      className: "demo-arrow",
+      stroke: "var(--popper-arrow-stroke)",
+      strokeWidth: 1,
+      tipRadius: 1,
+  };
   function Example() {
       const [triggerOnHover, setTriggerOnHover] = React$1.useState(undefined);
       const [enterable, setEnterable] = React$1.useState(true);
@@ -4691,7 +4700,7 @@
       const [referenceEsc, setReferenceEsc] = React$1.useState(undefined);
       const [disable, setDisable] = React$1.useState(false);
       const [placement, setPlacement] = React$1.useState("right");
-      const [offset, setOffset] = React$1.useState(6);
+      const [offset, setOffset] = React$1.useState(8);
       const [viewportPadding, setViewportPadding] = React$1.useState(4);
       const [autoPlacement, setAutoPlacement] = React$1.useState("flip");
       const [autoUpdate, setAutoUpdate] = React$1.useState(false);
@@ -4717,7 +4726,7 @@
                   // other options:
                   usePortal: usePortal, transitionMs: transitionMs, 
                   // slots:
-                  slots: slots, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowClass: "demo-arrow", arrowPadding: arrowPadding },
+                  slots: slots, pop: React$1.createElement("div", null, "Hello from Popper \uD83D\uDC4B"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowProps: arrowProps, arrowPadding: arrowPadding },
                   React$1.createElement("button", { type: "button", className: "demo-btn" }, "Reference")),
               React$1.createElement("div", { className: "moving-area" },
                   React$1.createElement("div", { className: "moving" },
@@ -4727,7 +4736,7 @@
                           // other options:
                           usePortal: usePortal, transitionMs: transitionMs, 
                           // slots:
-                          slots: slots, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowClass: "demo-arrow", arrowPadding: arrowPadding },
+                          slots: slots, pop: React$1.createElement("div", null, "Moving ref demo \uD83C\uDFC3\u200D\u2642\uFE0F"), popClass: "demo-pop", popContainerProps: popContainerProps, withArrow: showArrow, arrowProps: arrowProps, arrowPadding: arrowPadding },
                           React$1.createElement("button", { type: "button", className: "demo-btn" }, "Moving reference"))))),
           React$1.createElement("div", { className: "section" },
               React$1.createElement("div", { className: "controls" },
