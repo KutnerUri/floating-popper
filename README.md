@@ -8,6 +8,8 @@ It delivers Floating UI's two core capabilities, positioning and interaction, vi
 
 Try it live: https://kutneruri.github.io/floating-popper/
 
+![Screenshot](https://kutneruri.github.io/floating-popper/screenshot.jpg)
+
 
 ## Features
 
