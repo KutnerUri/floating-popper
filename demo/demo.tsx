@@ -7,6 +7,12 @@ const slots = {
 const popContainerProps = {
   className: "demo-pop-container",
 } as const;
+const arrowProps = {
+  className: "demo-arrow",
+  stroke: "var(--popper-arrow-stroke)",
+  strokeWidth: 1,
+  tipRadius: 1,
+} as const;
 
 type Toggle = boolean | undefined;
 
@@ -26,7 +32,7 @@ export function Example() {
   const [disable, setDisable] = React.useState(false);
 
   const [placement, setPlacement] = React.useState<Placement>("right");
-  const [offset, setOffset] = React.useState(6);
+  const [offset, setOffset] = React.useState(8);
   const [viewportPadding, setViewportPadding] = React.useState(4);
   const [autoPlacement, setAutoPlacement] = React.useState<false | "flip">(
     "flip"
@@ -77,7 +83,7 @@ export function Example() {
           popClass="demo-pop"
           popContainerProps={popContainerProps}
           withArrow={showArrow}
-          arrowClass="demo-arrow"
+          arrowProps={arrowProps}
           arrowPadding={arrowPadding}
         >
           <button type="button" className="demo-btn">
@@ -112,7 +118,7 @@ export function Example() {
               popClass="demo-pop"
               popContainerProps={popContainerProps}
               withArrow={showArrow}
-              arrowClass="demo-arrow"
+              arrowProps={arrowProps}
               arrowPadding={arrowPadding}
             >
               <button type="button" className="demo-btn">

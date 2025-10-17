@@ -210,7 +210,8 @@ export function BasePopper(props: BasePopperProps) {
       // shift pushes the popper away from the edge of the screen (along secondary axis)
       autoPlacement === "flip" && shift({ padding: viewportPadding }),
       // arrow points from the popper to the reference (only when enabled)
-      withArrow && arrowMiddleware({ element: arrowRef, padding: arrowPadding }),
+      withArrow &&
+        arrowMiddleware({ element: arrowRef, padding: arrowPadding }),
     ],
   });
 
@@ -271,11 +272,12 @@ export function BasePopper(props: BasePopperProps) {
         {pop}
         {withArrow && (
           <Arrow
-          tipRadius={1}
             {...arrowProps}
             context={context}
             ref={arrowRef}
-            className={arrowClass}
+            className={[arrowProps?.className, arrowClass]
+              .filter(Boolean)
+              .join(" ")}
           />
         )}
       </Pop>
