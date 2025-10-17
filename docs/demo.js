@@ -4717,8 +4717,8 @@
           }
       }, [triggerOnHover]);
       return (React$1.createElement("div", { className: "container" },
-          React$1.createElement("h1", null, "floating-tooltip-react demo"),
-          React$1.createElement("p", { className: "lead" }, "Toggle options to see how behavior changes."),
+          React$1.createElement("h1", null, "Floating Tooltip React"),
+          React$1.createElement("p", { className: "lead" }, "A batteries included tooltip component"),
           React$1.createElement("div", { className: "refs" },
               React$1.createElement(BasePopper, { disable: disable, placement: placement, offset: offset, viewportPadding: viewportPadding, autoPlacement: autoPlacement, autoUpdate: autoUpdate, 
                   // triggers:

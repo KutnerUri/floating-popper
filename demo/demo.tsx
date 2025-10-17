@@ -53,8 +53,9 @@ export function Example() {
 
   return (
     <div className="container">
-      <h1>floating-tooltip-react demo</h1>
-      <p className="lead">Toggle options to see how behavior changes.</p>
+      <h1>Floating Tooltip React</h1>
+
+      <p className="lead">A batteries included tooltip component</p>
 
       {/* References showcase */}
       <div className="refs">

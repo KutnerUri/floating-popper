@@ -2,16 +2,21 @@
 
 Headless, ergonomic popper primitive for React (tooltips, popovers, menus) built on top of `@floating-ui/react`.
 
-`BasePopper` wires up positioning and interactions for you, while leaving rendering and styling completely in your hands.
+It delivers Floating UI's two core capabilities, positioning and interaction, via a simple, easy-to-use API that you can drop into any design system.
+
+## Demo
+
+Try it live: https://kutneruri.github.io/floating-popper/
+
 
 ## Features
 
-- Hover, click, click-away, Escape, and reference re-click behaviors
-- Controlled and uncontrolled modes with a simple `onOpen(boolean)` callback
+- Implemented behaviors: Hover, click, click-away, Escape key, etc.
+- Fully controlled with a simple `open={boolean}` and a `onOpen(boolean)` callback
 - Enterable hover with polygon-safe close and configurable `hoverDelay`
-- Smooth transitions via `useTransitionStyles`; optional portal support
-- Fully customizable: provide your own `pop` node, classes, styles, and wrapper via `slots.Pop`
-- No CSS or design assumptions—drop into any design system
+- Enter/exit animations; optional portal support
+- Fully customizable - no CSS or design assumptions
+- Built in arrow support.
 
 ## Installation
 
@@ -64,6 +69,9 @@ For ref handling, the popper renders its own div. Beyond that, it's as minimal a
   >
     <div class="my-pop" /* your pop wrapper via slots.Pop */>
       <div class="pop-component">Pop content</div> {/* your pop node */}
+
+      {/* if withArrow is true: */}
+      <svg>...</div>
     </div>
   </div>
 </div>
