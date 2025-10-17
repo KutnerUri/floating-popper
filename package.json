@@ -37,6 +37,7 @@
   },
   "homepage": "https://github.com/REPLACE_ME/floating-tooltip-react#readme",
   "sideEffects": false,
+  "packageManager": "pnpm@10.0.0",
   "engines": {
     "node": ">=18"
   },
