@@ -1,21 +1,21 @@
 :root {
-  --bg: #25211b;                /* lighter base – less eye strain */
-  --surface: #2e2923;           /* distinct from bg for depth */
+  --bg: #23211f;
+  --surface: #2b2927;
   --border: rgba(255, 220, 150, 0.05);
   --border-hover: #4a4037;
 
-  --text-strong: #f8efe2;              /* warm cream */
-  --text: #cfc3b0;    /* gentle sand tone */
+  --text: #b6b3af;
+  --text-strong: #f8efe2;
 
-  --button: #caa05d;            /* muted gold, smoother */
-  --button-hover: #dcb26d;      /* warm amber highlight */
-  --button-text: #2b251e;       /* dark neutral for legibility */
+  --button: #caa05d;
+  --button-hover: #dcb26d;
+  --button-text: #2b251e;
 
-  --pop-bg: #3a2f22;            /* richer caramel */
-  --pop-border: #8a7148;        /* bronze edge */
-  --pop-text: #faefde;          /* soft warm white */
+  --pop-bg: #3a2f22;
+  --pop-border: #8a7148;
+  --pop-text: #faefde;
 
-  --focus-ring: #eac27a44;      /* subtle amber glow */
+  --focus-ring: #eac27a44;
 }
 
 body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif; line-height: 1.4; color: var(--text); background: var(--bg); }
