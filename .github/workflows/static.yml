@@ -1,5 +1,5 @@
 name: Deploy docs page
-run-name: Deploy docs page ${{ github.ref_name }}
+run-name: Deploy docs page
 
 on:
   # Runs on pushes targeting the default branch
